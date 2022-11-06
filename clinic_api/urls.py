@@ -6,7 +6,6 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register('hello-viewset', views.HelloViewSet, base_name='hello-viewset')
 router.register('profile', views.UserProfileViewSet)
-router.register('feed', views.UserProfileFeedViewSet)
 router.register('clinic', views.ClinicViewSet)
 router.register('staff', views.StaffViewSet)
 router.register('patient', views.PatientViewSet)

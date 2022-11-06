@@ -74,7 +74,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 class Clinic(models.Model):
     name = models.CharField(max_length=20)
     address = models.CharField(max_length=20)
-    contact_nr = models.IntegerField(max_length=20)
+    contact_nr = models.IntegerField
     email = models.EmailField(max_length=20)
     website = models.CharField(max_length=20)
 
@@ -82,7 +82,7 @@ class Staff(models.Model):
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
     position = models.CharField(max_length=20)
-    contact_nr = models.IntegerField(max_length=20)
+    contact_nr = models.IntegerField
     email = models.EmailField(max_length=20)
 
     def __str__(self):
@@ -92,9 +92,9 @@ class Staff(models.Model):
 class Patient(models.Model):
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
-    age = models.IntegerField(max_length=3)
+    age = models.IntegerField
     gender = models.CharField(max_length=20)
-    contact_nr = models.IntegerField(max_length=20)
+    contact_nr = models.IntegerField
     email = models.EmailField(max_length=20)
     problem = models.CharField(max_length=100)
 

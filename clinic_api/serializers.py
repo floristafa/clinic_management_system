@@ -76,7 +76,10 @@ class ReporttSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Report
         fields = ('appointment', 'medication', 'comments')
-
+class PositionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Position
+        fields = ('name')
 class InvoiceSerializer(serializers.ModelSerializer):
     # items = serializers.SerializerMethodField()
     # quantity = serializers.FloatField(validators=['check_positive'])

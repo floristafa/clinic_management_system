@@ -81,10 +81,9 @@ class Clinic(models.Model):
 class Staff(models.Model):
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
-    position = models.CharField(max_length=20)
     contact_nr = models.IntegerField
     email = models.EmailField(max_length=20)
-
+    position = models.ForeignKey('clinic_api.Position', on_delete=models.CASCADE)
     def __str__(self):
         return self.first_name
 
@@ -124,6 +123,8 @@ class Report (models.Model):
     appointment = models.ForeignKey('clinic_api.Appointment', on_delete=models.CASCADE)
     medication = models.CharField(max_length=50)
     comments = models.CharField(max_length=50)
+class Position (models.Model):
+    name = models.CharField(max_length=50)
 
 
 class Invoice(models.Model):

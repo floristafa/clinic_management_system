@@ -176,6 +176,11 @@ class ReportViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ReporttSerializer
     queryset = models.Report.objects.all()
     permission_classes = (IsAuthenticated,)
+class PositionViewSet(viewsets.ModelViewSet):
+    authentication_classes = (TokenAuthentication,)
+    serializer_class = serializers.PositionSerializer
+    queryset = models.Position.objects.all()
+    permission_classes = (IsAuthenticated,)
 
 class InvoiceViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)

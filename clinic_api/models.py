@@ -15,7 +15,7 @@ class UserProfileManager(BaseUserManager):
             raise ValueError('Users must have an email address')
 
         email = self.normalize_email(email)
-        user = self.model(email=email, name=name, )
+        user = self.model(email=email, name=name )
 
         user.set_password(password)
         user.save(using=self._db)
@@ -35,8 +35,11 @@ class UserProfileManager(BaseUserManager):
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     """Database model for users in the system"""
-    email = models.EmailField(max_length=255, unique=True)
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=20)
+    last_name = models.CharField(max_length=20)
+    contact_nr = models.CharField (null=True, max_length=20)
+    email = models.EmailField(max_length=30,unique=True)
+    position = models.ForeignKey('clinic_api.Position', null=True, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
@@ -47,7 +50,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     def get_full_name(self):
         """Retrieve full name for user"""
-        return self.name
+        return f"{self.name, self.last_name}"
 
     def get_short_name(self):
         """Retrieve short name of user"""
@@ -73,42 +76,44 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
 class Clinic(models.Model):
     name = models.CharField(max_length=20)
-    address = models.CharField(max_length=20)
-    contact_nr = models.IntegerField
+    address = models.CharField(max_length=50)
+    contact_nr = models.CharField(max_length=20)
     email = models.EmailField(max_length=20)
     website = models.CharField(max_length=20)
-
-class Staff(models.Model):
-    first_name = models.CharField(max_length=20)
-    last_name = models.CharField(max_length=20)
-    contact_nr = models.IntegerField
-    email = models.EmailField(max_length=20)
-    position = models.ForeignKey('clinic_api.Position', on_delete=models.CASCADE)
     def __str__(self):
-        return self.first_name
-
+        """Return string representation of user"""
+        return self.name
 
 class Patient(models.Model):
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
-    age = models.IntegerField
+    age = models.IntegerField (max_length=20)
     gender = models.CharField(max_length=20)
-    contact_nr = models.IntegerField
+    height = models.FloatField(max_length=20)
+    weight = models.FloatField(max_length=20)
+    contact_nr = models.CharField (max_length=20)
     email = models.EmailField(max_length=20)
     problem = models.CharField(max_length=100)
 
+    @property
+    def BMI(self):
+        return self.weight/ ((self.height/100)**2)
     def __str__(self):
-        return self.first_name
+        """Return string representation of user"""
+        return f"{self.first_name, self.last_name}"
+
+
 
 
 class Appointment(models.Model):
-    staff = models.ForeignKey('clinic_api.Staff', on_delete=models.CASCADE)
+    user = models.ForeignKey('clinic_api.UserProfile', on_delete=models.CASCADE)
     patient = models.ForeignKey('clinic_api.Patient', on_delete=models.CASCADE)
     service = models.ForeignKey('clinic_api.Service', on_delete=models.CASCADE)
     invoice = models.ForeignKey('clinic_api.Invoice', on_delete=models.CASCADE)
     date = models.DateField(max_length=20)
     time = models.TimeField(max_length=20)
     price = models.FloatField(max_length=20)
+    quantity = models.IntegerField(max_length=20)
 
     def __str__(self):
         return self.date
@@ -117,26 +122,36 @@ class Appointment(models.Model):
 class Service(models.Model):
     name = models.CharField(max_length=20)
     price = models.FloatField(max_length=20)
-
+    def __str__(self):
+        """Return string representation of user"""
+        return self.name
 
 class Report (models.Model):
     appointment = models.ForeignKey('clinic_api.Appointment', on_delete=models.CASCADE)
     medication = models.CharField(max_length=50)
     comments = models.CharField(max_length=50)
+
+    def __str__(self):
+        """Return string representation of user"""
+        return self.appointment
 class Position (models.Model):
     name = models.CharField(max_length=50)
-
+    def __str__(self):
+        """Return string representation of user"""
+        return self.name
 
 class Invoice(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     patient = models.ForeignKey('clinic_api.Patient', on_delete=models.CASCADE)
     clinic = models.ForeignKey('clinic_api.Clinic', on_delete=models.CASCADE)
-    # service = models.FloatField(default=0)
-    # price = models.FloatField(default=0)
-    #
-    # @property
-    # def total(self):
-    #     return self.price * self.quantity
-    #
-    # def __str__(self):
-    #     return f'{self.product} - {self.invoice}'
+
+    @property
+    def total(self):
+        # sum = 0
+        # for item in self.invoiceitem_set.all():
+        #     sum += item.total
+        # return sum
+        return self.appointment_set.all().aggregate(total=Sum(F('quantity') * F('price')))
+
+    def __str__(self):
+        return f'{self.patient} / {self.date}'

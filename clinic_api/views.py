@@ -146,12 +146,6 @@ class ClinicViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
 
-class StaffViewSet(viewsets.ModelViewSet):
-    authentication_classes = (TokenAuthentication,)
-    serializer_class = serializers.StaffSerializer
-    queryset = models.Staff.objects.all()
-    permission_classes = (permissions.UpdateOwnInvoice, IsAuthenticated)
-
 
 class PatientViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)

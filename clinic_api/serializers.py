@@ -52,10 +52,7 @@ class ClinicSerializer(serializers.ModelSerializer):
     #     return data
 
 
-class StaffSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Staff
-        fields = ('first_name', 'last_name', 'position', 'contact_nr', 'email',)
+
 
 
 class PatientSerializer(serializers.ModelSerializer):
@@ -66,7 +63,7 @@ class PatientSerializer(serializers.ModelSerializer):
 class AppointmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Appointment
-        fields = ('staff', 'patient', 'service', 'invoice', 'date', 'time', 'price')
+        fields = ('user', 'patient', 'service', 'invoice', 'date', 'time', 'price')
 
 class ServiceSerializer(serializers.ModelSerializer):
     class Meta:

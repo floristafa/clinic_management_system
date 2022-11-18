@@ -11,7 +11,7 @@ router.register('patient', views.PatientViewSet)
 router.register('appointment', views.AppointmentViewSet)
 router.register('service', views.ServiceViewSet)
 router.register('report', views.ReportViewSet)
-router.register('report', views.PositionViewSet)
+router.register('position', views.PositionViewSet)
 router.register('invoice', views.InvoiceViewSet)
 
 

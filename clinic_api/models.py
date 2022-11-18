@@ -15,7 +15,7 @@ class UserProfileManager(BaseUserManager):
             raise ValueError('Users must have an email address')
 
         email = self.normalize_email(email)
-        user = self.model(email=email, name=name )
+        user = self.model(email=email, name=name)
 
         user.set_password(password)
         user.save(using=self._db)
@@ -37,8 +37,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     """Database model for users in the system"""
     name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
-    contact_nr = models.CharField (null=True, max_length=20)
-    email = models.EmailField(max_length=30,unique=True)
+    contact_nr = models.CharField(null=True, max_length=20)
+    email = models.EmailField(max_length=30, unique=True)
     position = models.ForeignKey('clinic_api.Position', null=True, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -61,48 +61,36 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
-# class ProfileFeedItem(models.Model):
-#     """Profile status update"""
-#     user_profile = models.ForeignKey(
-#         settings.AUTH_USER_MODEL,
-#         on_delete=models.CASCADE
-#     )
-#     status_text = models.CharField(max_length=255)
-#     created_on = models.DateTimeField(auto_now_add=True)
-#
-#     def __str__(self):
-#         """Return the model as a string"""
-#         return self.status_text
-
 class Clinic(models.Model):
     name = models.CharField(max_length=20)
     address = models.CharField(max_length=50)
     contact_nr = models.CharField(max_length=20)
     email = models.EmailField(max_length=20)
     website = models.CharField(max_length=20)
+
     def __str__(self):
         """Return string representation of user"""
         return self.name
 
+
 class Patient(models.Model):
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
-    age = models.IntegerField (max_length=20)
+    age = models.IntegerField(max_length=20)
     gender = models.CharField(max_length=20)
     height = models.FloatField(max_length=20)
     weight = models.FloatField(max_length=20)
-    contact_nr = models.CharField (max_length=20)
+    contact_nr = models.CharField(max_length=20)
     email = models.EmailField(max_length=20)
     problem = models.CharField(max_length=100)
 
     @property
     def BMI(self):
-        return self.weight/ ((self.height/100)**2)
+        return self.weight / ((self.height / 100) ** 2)
+
     def __str__(self):
         """Return string representation of user"""
         return f"{self.first_name, self.last_name}"
-
-
 
 
 class Appointment(models.Model):
@@ -115,33 +103,44 @@ class Appointment(models.Model):
     price = models.FloatField(max_length=20)
     quantity = models.IntegerField(max_length=20)
 
+    @property
+    def total(self):
+        return self.price * self.quantity
+
     def __str__(self):
-        return self.date
+        return f'{self.service} - {self.invoice}'
 
 
 class Service(models.Model):
     name = models.CharField(max_length=20)
     price = models.FloatField(max_length=20)
+
     def __str__(self):
         """Return string representation of user"""
         return self.name
 
-class Report (models.Model):
+
+class Report(models.Model):
     appointment = models.ForeignKey('clinic_api.Appointment', on_delete=models.CASCADE)
     medication = models.CharField(max_length=50)
     comments = models.CharField(max_length=50)
 
     def __str__(self):
         """Return string representation of user"""
-        return self.appointment
-class Position (models.Model):
+        return str(self.appointment)
+
+
+class Position(models.Model):
     name = models.CharField(max_length=50)
+
     def __str__(self):
         """Return string representation of user"""
         return self.name
 
+
 class Invoice(models.Model):
     date = models.DateTimeField(auto_now_add=True)
+    doctor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     patient = models.ForeignKey('clinic_api.Patient', on_delete=models.CASCADE)
     clinic = models.ForeignKey('clinic_api.Clinic', on_delete=models.CASCADE)
 

@@ -156,7 +156,7 @@ class Invoice(models.Model):
     @property
     def total(self):
 
-        return {self.appointment_set.all().aggregate(total=Sum(F('quantity') * F('price')))}
+        return self.appointment_set.all().aggregate(total=Sum(F('quantity') * F('price')))
 
     def __str__(self):
         return f'{self.patient} / {self.date}'

@@ -31,54 +31,56 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return user
 
 
-
-
 class ClinicSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Clinic
-        fields = ('name', 'address', 'contact_nr', 'email', 'website')
-
-    # def validate(self, data):
-    #     if data['quantity'] < 0:
-    #         raise serializers.ValidationError("Product quantity can't be negative")
-    #     return data
-
-
-
+        fields = ('id', 'name', 'address', 'contact_nr', 'email', 'website')
 
 
 class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Patient
-        fields = ('first_name', 'last_name', 'age', 'gender', 'contact_nr', 'email', 'problem')
+        fields = ('id', 'first_name', 'last_name', 'age', 'gender','height','weight', 'BMI', 'contact_nr', 'email', 'problem')
+        extra_kwargs = {'BMI': {'read_only': True}}
 
 class AppointmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Appointment
-        fields = ('user', 'patient', 'service', 'invoice', 'date', 'time', 'price')
+        fields = ('id', 'user', 'patient', 'service', 'invoice', 'date', 'time', 'price', 'quantity', 'total')
+
+        extra_kwargs = {'total': {'read_only': True}, 'price ': {'read_only': True}}
+
 
 class ServiceSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Appointment
-        fields = ('name', 'price')
+        model = models.Service
+        fields = ('id', 'name', 'price', 'quantity')
+
+        def validate(self, data):
+            if data['quantity'] < 0:
+                raise serializers.ValidationError("Service quantity can't be negative")
+            return data
+
+
 class ReporttSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Report
-        fields = ('appointment', 'medication', 'comments')
+        fields = ('id', 'appointment', 'medication', 'comments')
+
+
 class PositionSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Position
-        fields = ('name')
+        fields = ('id', 'name')
+
+
 class InvoiceSerializer(serializers.ModelSerializer):
-    # items = serializers.SerializerMethodField()
-    # quantity = serializers.FloatField(validators=['check_positive'])
-    #
-    # def get_items(self, invoice):
-    #     return InvoiceItemSerializer(invoice.invoiceitem_set.all(), many=True).data
+    items = serializers.SerializerMethodField()
+
+
+    def get_items(self, invoice):
+        return AppointmentSerializer(invoice.appointment_set.all(), many=True).data
 
     class Meta:
         model = models.Invoice
-        fields = ('date', 'patient', 'clinic')
-
-        # fields = ('id', 'product', 'invoice', 'quantity', 'price', 'total')
-        # extra_kwargs = {'total': {'read_only': True}, 'price ': {'read_only': True}}
+        fields = ('id', 'date', 'patient', 'clinic', 'total','items')

@@ -6,6 +6,7 @@ from django.conf import settings
 from django.db.models import Sum, F
 
 
+
 class UserProfileManager(BaseUserManager):
     """Manager for user profiles"""
 
@@ -74,12 +75,19 @@ class Clinic(models.Model):
 
 
 class Patient(models.Model):
+
+    GENDER_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('X', "Don't say")
+    ]
+
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
     age = models.IntegerField(max_length=20)
-    gender = models.CharField(max_length=20)
-    height = models.FloatField(max_length=20)
-    weight = models.FloatField(max_length=20)
+    gender = models.CharField( max_length=6, choices=GENDER_CHOICES , default='X')
+    height = models.FloatField(default=0)
+    weight = models.FloatField(default=0)
     contact_nr = models.CharField(max_length=20)
     email = models.EmailField(max_length=20)
     problem = models.CharField(max_length=100)
@@ -100,8 +108,8 @@ class Appointment(models.Model):
     invoice = models.ForeignKey('clinic_api.Invoice', on_delete=models.CASCADE)
     date = models.DateField(max_length=20)
     time = models.TimeField(max_length=20)
-    price = models.FloatField(max_length=20)
-    quantity = models.IntegerField(max_length=20)
+    price = models.FloatField(default=0)
+    quantity = models.FloatField(default=0)
 
     @property
     def total(self):
@@ -113,7 +121,8 @@ class Appointment(models.Model):
 
 class Service(models.Model):
     name = models.CharField(max_length=20)
-    price = models.FloatField(max_length=20)
+    price = models.FloatField(default=0)
+    quantity = models.FloatField(default=0)
 
     def __str__(self):
         """Return string representation of user"""
@@ -146,11 +155,8 @@ class Invoice(models.Model):
 
     @property
     def total(self):
-        # sum = 0
-        # for item in self.invoiceitem_set.all():
-        #     sum += item.total
-        # return sum
-        return self.appointment_set.all().aggregate(total=Sum(F('quantity') * F('price')))
+
+        return {self.appointment_set.all().aggregate(total=Sum(F('quantity') * F('price')))}
 
     def __str__(self):
         return f'{self.patient} / {self.date}'
